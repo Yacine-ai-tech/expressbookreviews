@@ -68,16 +68,20 @@ public_users.get('/author/:author', async function (req, res) {
     }
 });
 
-
+const getBooksByTitle = (title) => 
+    Promise.resolve(Object.values(books).filter(book => book.title === title));
 // Get all books based on title
-public_users.get('/title/:title', function (req, res) {
+public_users.get('/title/:title', async function (req, res) {
     const title = req.params.title;
-    const booksByTitle = Object.values(books).filter(book => book.title === title);
-
-    if (booksByTitle.length > 0) {
-        res.status(200).json(booksByTitle);
-    } else {
-        res.status(404).json({ message: "No books found with this title" });
+    try {
+        const booksByTitle = await getBooksByTitle(title);
+        if (booksByTitle.length > 0) {
+            res.status(200).json(booksByTitle);
+        } else {
+            res.status(404).json({ message: "No books found with this title" });
+        }
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching books by title" });
     }
 });
 
